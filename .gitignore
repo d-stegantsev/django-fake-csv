@@ -1,0 +1,87 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.pyenv/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+
+# Media files (user-uploaded)
+media/
+# Static files (if collected)
+staticfiles/
+static/
+# Local settings
+local_settings.py
+
+# Django migrations
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# VS Code
+.vscode/
+
+# IDEs
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Test output
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# pipenv
+Pipfile.lock
+
+# Heroku
+*.env
+.env.*
+.venv/
+# Gunicorn
+gunicorn.pid
+
+# System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Database dumps
+*.sql
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Celery beat schedule file
+celerybeat-schedule
+
+# Sentry debug files
+.sentryclirc
+
+# dotenv
+.env
