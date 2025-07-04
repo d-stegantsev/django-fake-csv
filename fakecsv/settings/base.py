@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     # Third-party apps
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,10 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Media files
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Login settings
 LOGIN_URL = reverse_lazy("login")
