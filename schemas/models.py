@@ -8,6 +8,9 @@ class Schema(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name
+
 
 class SchemaColumn(models.Model):
     class Type(models.TextChoices):
@@ -31,6 +34,8 @@ class SchemaColumn(models.Model):
     order = models.PositiveIntegerField()
     params = models.JSONField(default=dict, blank=True)
 
+    def __str__(self):
+        return self.name
 
 
 class Dataset(models.Model):
