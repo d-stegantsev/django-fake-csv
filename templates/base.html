@@ -9,19 +9,22 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
   <div class="container">
-    <a class="navbar-brand" href="#">FakeCSV</a>
-    <div>
-      <a class="nav-link d-inline" href="{% url 'schemas:schema_list' %}">Schemas</a>
-      {% if user.is_authenticated %}
-        <span class="ms-3 text-muted">Hello, <strong>{{ user.username }}</strong></span>
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-link" style="padding: 0;">Logout</button>
-        </form>
-      {% else %}
-        <a class="btn btn-link" href="{% url 'login' %}">Login</a>
-      {% endif %}
-    </div>
+    <!-- Зліва: логотип і Schemas -->
+    <a class="navbar-brand me-4" href="#">FakeCSV</a>
+    <a class="nav-link d-inline px-2" href="{% url 'schemas:schema_list' %}">Schemas</a>
+    <div class="flex-grow-1"></div>
+    <!-- Справа: вітання і логаут -->
+    {% if user.is_authenticated %}
+      <span class="me-3 text-muted">
+                Hello, <strong>{{ user.username }}</strong>
+            </span>
+      <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-secondary btn-sm" style="vertical-align: middle;">Logout</button>
+      </form>
+    {% else %}
+      <a class="btn btn-outline-primary btn-sm" href="{% url 'login' %}">Login</a>
+    {% endif %}
   </div>
 </nav>
 <main class="container">
