@@ -11,7 +11,7 @@
     <div class="container">
         <a class="navbar-brand" href="#">FakeCSV</a>
         <div>
-            <a class="nav-link d-inline" href="{% url 'schemas:list' %}">Schemas</a>
+            <a class="nav-link d-inline" href="{% url 'schemas:schema_list' %}">Schemas</a>
             {% if user.is_authenticated %}
                 <span class="ms-3 text-muted">Hello, <strong>{{ user.username }}</strong></span>
                 <a class="btn btn-link" href="{% url 'logout' %}">Logout</a>
