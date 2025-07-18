@@ -79,9 +79,9 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Login settings
-LOGIN_URL = reverse_lazy("login")
+LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = reverse_lazy("login")
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
