@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Data Schemas</h2>
+<ul>
+    {% for schema in schemas %}
+        <li>{{ schema.name }} (Updated: {{ schema.updated_at }})</li>
+    {% empty %}
+        <li>No schemas found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
