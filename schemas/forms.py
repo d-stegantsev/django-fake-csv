@@ -15,7 +15,7 @@ class SchemaColumnForm(forms.ModelForm):
         model = SchemaColumn
         fields = ["name", "type", "order", "params"]
         widgets = {
-            "params": forms.Textarea(attrs={"rows": 2}),
+            "params": forms.HiddenInput(),
         }
 
 

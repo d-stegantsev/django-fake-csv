@@ -1,55 +1,113 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>New Schema</h2>
+  <h2>New Schema</h2>
 
-<form method="post">
+  <form method="post">
     {% csrf_token %}
 
     <fieldset>
-        <legend>New schema</legend>
-        {{ form.non_field_errors }}
-        <div>
-            {{ form.name.label_tag }}<br>
-            {{ form.name }}
-        </div>
-        <div>
-            {{ form.column_separator.label_tag }}<br>
-            {{ form.column_separator }}
-        </div>
-        <div>
-            {{ form.string_character.label_tag }}<br>
-            {{ form.string_character }}
-        </div>
+      <legend>New schema</legend>
+      {{ form.non_field_errors }}
+      <div>
+        {{ form.name.label_tag }}<br>
+        {{ form.name }}
+      </div>
+      <div>
+        {{ form.column_separator.label_tag }}<br>
+        {{ form.column_separator }}
+      </div>
+      <div>
+        {{ form.string_character.label_tag }}<br>
+        {{ form.string_character }}
+      </div>
     </fieldset>
 
     <fieldset>
-        <legend>Schema columns</legend>
-        {{ formset.management_form }}
+      <legend>Schema columns</legend>
+      {{ formset.management_form }}
 
-        <div id="columns">
-            {% for form in formset %}
-                <div class="column-form">
-                    {{ form.as_p }}
-                </div>
-            {% endfor %}
-        </div>
+      <div id="columns">
+        {% for form in formset %}
+          <div class="column-form">
+            {{ form.name.label_tag }} {{ form.name }}
+            {{ form.type.label_tag }} {{ form.type }}
+            {{ form.order.label_tag }} {{ form.order }}
 
-        <button type="button" id="add-column">Add column</button>
+            <!-- INTEGER -->
+            <div class="param-fields param-integer" style="display:none;">
+              From: <input type="number" class="param-input" data-key="min">
+              To: <input type="number" class="param-input" data-key="max">
+            </div>
+
+            <!-- TEXT -->
+            <div class="param-fields param-text" style="display:none;">
+              Min length: <input type="number" class="param-input" data-key="min_length">
+              Max length: <input type="number" class="param-input" data-key="max_length">
+            </div>
+
+            <!-- DATE -->
+            <div class="param-fields param-date" style="display:none;">
+              Start date: <input type="date" class="param-input" data-key="start_date">
+              End date: <input type="date" class="param-input" data-key="end_date">
+            </div>
+
+            {{ form.params }}
+            <hr>
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="button" id="add-column">Add column</button>
     </fieldset>
 
     <button type="submit">Save Schema</button>
-</form>
+  </form>
 
-<script>
-    const addBtn = document.getElementById("add-column");
-    const columnsDiv = document.getElementById("columns");
-    const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+  <script>
+      const addBtn = document.getElementById("add-column");
+      const columnsDiv = document.getElementById("columns");
+      const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
 
-    addBtn.addEventListener("click", function () {
-        const currentFormCount = parseInt(totalForms.value);
-        const emptyFormHtml = columnsDiv.children[0].outerHTML.replace(/form-0/g, `form-${currentFormCount}`);
-        columnsDiv.insertAdjacentHTML("beforeend", emptyFormHtml);
-        totalForms.value = currentFormCount + 1;
-    });
-</script>
+      addBtn.addEventListener("click", function () {
+          const currentFormCount = parseInt(totalForms.value);
+          const emptyFormHtml = columnsDiv.children[0].outerHTML.replace(/form-0/g, `form-${currentFormCount}`);
+          columnsDiv.insertAdjacentHTML("beforeend", emptyFormHtml);
+          totalForms.value = currentFormCount + 1;
+
+          initColumnForm(columnsDiv.lastElementChild);
+      });
+
+      function initColumnForm(block) {
+          const typeSelect = block.querySelector("select");
+          const paramsInput = block.querySelector("input[name$='-params']");
+          const paramInteger = block.querySelector(".param-integer");
+          const paramText = block.querySelector(".param-text");
+          const paramDate = block.querySelector(".param-date");
+
+          function toggleParams() {
+              const val = typeSelect.value;
+              paramInteger.style.display = val === "integer" ? "block" : "none";
+              paramText.style.display = val === "text" ? "block" : "none";
+              paramDate.style.display = val === "date" ? "block" : "none";
+          }
+
+          typeSelect.addEventListener("change", toggleParams);
+          toggleParams();
+
+          block.closest("form").addEventListener("submit", function () {
+              const data = {};
+              block.querySelectorAll(".param-input").forEach((input) => {
+                  const key = input.getAttribute("data-key");
+                  const val = input.value;
+                  if (val !== "") {
+                      data[key] = isNaN(val) ? val : Number(val);
+                  }
+              });
+              paramsInput.value = JSON.stringify(data);
+          });
+      }
+
+      document.querySelectorAll(".column-form").forEach(initColumnForm);
+  </script>
+
 {% endblock %}
