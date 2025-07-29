@@ -3,8 +3,30 @@ from django.db import models
 
 
 class Schema(models.Model):
+
+    class ColumnSeparator(models.TextChoices):
+        COMMA = ",", "Comma ( , )"
+        SEMICOLON = ";", "Semicolon ( ; )"
+        PIPE = "|", "Pipe ( | )"
+        COLON = ":", "Colon ( : )"
+
+    class StringCharacter(models.TextChoices):
+        DOUBLE_QUOTE = '"', 'Double quote ( " )'
+        SINGLE_QUOTE = "'", "Single quote ( ' )"
+        BACKTICK = "`", "Backtick ( ` )"
+
     name = models.CharField(max_length=100)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="schemas")
+    column_separator = models.CharField(
+        max_length=10,
+        choices=ColumnSeparator.choices,
+        default=ColumnSeparator.COMMA,
+    )
+    string_character = models.CharField(
+        max_length=10,
+        choices=StringCharacter.choices,
+        default=StringCharacter.DOUBLE_QUOTE,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -13,6 +35,7 @@ class Schema(models.Model):
 
 
 class SchemaColumn(models.Model):
+
     class Type(models.TextChoices):
         FULL_NAME = "full_name", "Full Name"
         JOB = "job", "Job"
@@ -39,6 +62,7 @@ class SchemaColumn(models.Model):
 
 
 class Dataset(models.Model):
+
     class Status(models.TextChoices):
         PROCESSING = "processing", "Processing"
         READY = "ready", "Ready"

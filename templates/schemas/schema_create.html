@@ -1,20 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Create New Schema</h2>
+<h2>New Schema</h2>
 
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    {{ formset.management_form }}
 
-    <div id="columns">
-        {% for form in formset %}
-            <div class="column-form">
-                {{ form.as_p }}
-            </div>
-        {% endfor %}
-    </div>
+    <fieldset>
+        <legend>New schema</legend>
+        {{ form.non_field_errors }}
+        <div>
+            {{ form.name.label_tag }}<br>
+            {{ form.name }}
+        </div>
+        <div>
+            {{ form.column_separator.label_tag }}<br>
+            {{ form.column_separator }}
+        </div>
+        <div>
+            {{ form.string_character.label_tag }}<br>
+            {{ form.string_character }}
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Schema columns</legend>
+        {{ formset.management_form }}
+
+        <div id="columns">
+            {% for form in formset %}
+                <div class="column-form">
+                    {{ form.as_p }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" id="add-column">Add column</button>
+    </fieldset>
 
     <button type="submit">Save Schema</button>
 </form>
+
+<script>
+    const addBtn = document.getElementById("add-column");
+    const columnsDiv = document.getElementById("columns");
+    const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+
+    addBtn.addEventListener("click", function () {
+        const currentFormCount = parseInt(totalForms.value);
+        const emptyFormHtml = columnsDiv.children[0].outerHTML.replace(/form-0/g, `form-${currentFormCount}`);
+        columnsDiv.insertAdjacentHTML("beforeend", emptyFormHtml);
+        totalForms.value = currentFormCount + 1;
+    });
+</script>
 {% endblock %}

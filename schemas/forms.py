@@ -7,7 +7,7 @@ from schemas.models import Schema, SchemaColumn
 class SchemaForm(forms.ModelForm):
     class Meta:
         model = Schema
-        fields = ["name"]
+        fields = ["name", "column_separator", "string_character"]
 
 
 class SchemaColumnForm(forms.ModelForm):
