@@ -1,0 +1,66 @@
+input[type="checkbox"][name$="-DELETE"] {
+    display: none;
+}
+
+.delete-btn {
+    color: red;
+    margin-left: 10px;
+    vertical-align: middle;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 2px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.delete-btn:hover {
+    background: #fee;
+}
+
+.column-form > .form-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.param-fields label {
+    margin-right: 14px;
+    font-weight: normal;
+}
+
+.param-fields input[type="number"],
+.param-fields input[type="date"] {
+    width: 110px;
+    margin-left: 4px;
+}
+
+hr {
+    margin: 12px 0 16px 0;
+    border: none;
+    border-top: 1px solid #e3e3e3;
+}
+
+.schema-layout {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+.schema-config {
+    min-width: 260px;
+    max-width: 320px;
+}
+
+.schema-columns {
+    flex: 1;
+    min-width: 420px;
+}
+
+legend {
+  display: block;
+  margin-bottom: 1.5rem !important;
+  font-size: 1.4rem;
+}
