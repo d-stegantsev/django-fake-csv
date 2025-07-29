@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Data Schemas</h2>
+  <a href="{% url 'schemas:schema_create' %}" class="btn btn-primary">New Schema</a>
 <ul>
     {% for schema in schemas %}
         <li>{{ schema.name }} (Updated: {{ schema.updated_at }})</li>
