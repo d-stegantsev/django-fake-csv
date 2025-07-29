@@ -52,6 +52,9 @@
             </div>
 
             {{ form.params }}
+
+            <button type="button" class="delete-btn" style="color: red; margin-top: 0.5em;">Delete</button>
+
             <hr>
           </div>
         {% endfor %}
@@ -94,6 +97,14 @@
           typeSelect.addEventListener("change", toggleParams);
           toggleParams();
 
+          const deleteBtn = block.querySelector(".delete-btn");
+          if (deleteBtn) {
+              deleteBtn.addEventListener("click", () => {
+                  block.remove();
+                  updateTotalForms();
+              });
+          }
+
           block.closest("form").addEventListener("submit", function () {
               const data = {};
               block.querySelectorAll(".param-input").forEach((input) => {
@@ -108,6 +119,12 @@
       }
 
       document.querySelectorAll(".column-form").forEach(initColumnForm);
+
+      function updateTotalForms() {
+          const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+          totalForms.value = document.querySelectorAll(".column-form").length;
+      }
+
   </script>
 
 {% endblock %}
