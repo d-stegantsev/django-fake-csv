@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
 
 from schemas.forms import SchemaForm, SchemaColumnFormSet
 from schemas.models import Schema
@@ -51,3 +51,31 @@ class SchemaDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["columns"] = self.object.columns.all().order_by("order")
         return context
+
+
+class SchemaUpdateView(LoginRequiredMixin, UpdateView):
+    model = Schema
+    form_class = SchemaForm
+    template_name = "schemas/schema_update.html"
+    context_object_name = "schema"
+
+    def get_success_url(self):
+        return reverse_lazy("schemas:schema_detail", kwargs={"pk": self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["formset"] = SchemaColumnFormSet(self.request.POST, instance=self.object, prefix="form")
+        else:
+            context["formset"] = SchemaColumnFormSet(instance=self.object, prefix="form")
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context["formset"]
+        if form.is_valid() and formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return redirect(self.get_success_url())
+        return self.render_to_response(self.get_context_data(form=form))

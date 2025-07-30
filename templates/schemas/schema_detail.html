@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2 class="mb-4">{{ schema.name }}</h2>
+  <h2 class="mb-4 d-flex align-items-center">
+    {{ schema.name }}
+    <a href="{% url 'schemas:schema_update' schema.pk %}" class="btn btn-outline-secondary ms-3 btn-sm">Edit schema</a>
+  </h2>
 
   <div class="card mb-4">
     <div class="card-header fw-bold">Schema columns</div>
