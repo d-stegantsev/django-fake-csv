@@ -1,12 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Data Schemas</h2>
-  <a href="{% url 'schemas:schema_create' %}" class="btn btn-primary">New Schema</a>
-<ul>
-    {% for schema in schemas %}
-        <li><a href="{% url 'schemas:schema_detail' schema.pk %}">{{ schema.name }}</a> (Updated: {{ schema.updated_at }})</li>
-    {% empty %}
-        <li>No schemas found.</li>
-    {% endfor %}
-</ul>
+  <h2 class="mb-4">Data schemas</h2>
+
+  <div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'schemas:schema_create' %}" class="btn btn-success">New schema</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-bordered mb-0 align-middle">
+        <thead class="table-light">
+        <tr>
+          <th style="width:4rem;">#</th>
+          <th>Title</th>
+          <th>Modified</th>
+          <th style="width:16rem;">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for schema in schemas %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+              <a href="{% url 'schemas:schema_detail' schema.pk %}">{{ schema.name }}</a>
+            </td>
+            <td>
+              {{ schema.updated_at|date:"Y-m-d" }}
+            </td>
+            <td>
+              <a href="{% url 'schemas:schema_update' schema.pk %}" class="me-3 link-primary">Edit scheme</a>
+              <a href="{% url 'schemas:schema_delete' schema.pk %}" class="link-danger">
+                Delete
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="text-center text-muted">No schemas found.</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 {% endblock %}

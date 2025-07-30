@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 
 from schemas.forms import SchemaForm, SchemaColumnFormSet, GenerateDatasetForm
 from schemas.models import Schema, Dataset
@@ -100,3 +100,9 @@ class SchemaUpdateView(LoginRequiredMixin, UpdateView):
             formset.save()
             return redirect(self.get_success_url())
         return self.render_to_response(self.get_context_data(form=form))
+
+
+class SchemaDeleteView(DeleteView):
+    model = Schema
+    template_name = "schemas/schema_confirm_delete.html"
+    success_url = reverse_lazy("schemas:schema_list")
