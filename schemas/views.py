@@ -3,8 +3,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 
-from schemas.forms import SchemaForm, SchemaColumnFormSet
-from schemas.models import Schema
+from schemas.forms import SchemaForm, SchemaColumnFormSet, GenerateDatasetForm
+from schemas.models import Schema, Dataset
 
 
 class SchemaListView(LoginRequiredMixin, ListView):
@@ -50,7 +50,27 @@ class SchemaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["columns"] = self.object.columns.all().order_by("order")
+        context["generate_form"] = kwargs.get("generate_form") or GenerateDatasetForm()
+        context["datasets"] = self.object.datasets.order_by("-created_at")
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = GenerateDatasetForm(request.POST)
+        if form.is_valid():
+            dataset = Dataset.objects.create(
+                schema=self.object,
+                user=request.user,
+                row_count=form.cleaned_data["row_count"],
+                status=Dataset.Status.PROCESSING,
+            )
+            # TODO: Start celery task
+            # generate_csv_file.delay(dataset.id)
+
+            return redirect(self.request.path_info)
+
+        context = self.get_context_data(generate_form=form)
+        return self.render_to_response(context)
 
 
 class SchemaUpdateView(LoginRequiredMixin, UpdateView):

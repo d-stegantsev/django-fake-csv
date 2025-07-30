@@ -33,4 +33,74 @@
       </table>
     </div>
   </div>
+
+  <div class="card mb-4">
+    <div class="card-header fw-bold">Generate data</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {{ generate_form.row_count.label_tag }}
+        <div class="row g-2 mb-2">
+          <div class="col-auto">
+            {{ generate_form.row_count }}
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-success">Generate data</button>
+          </div>
+        </div>
+        {% if generate_form.errors %}
+          <div class="text-danger small">{{ generate_form.errors.row_count }}</div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header fw-bold">Data sets</div>
+    <div class="card-body p-0">
+      <table class="table table-bordered mb-0 align-middle">
+        <thead class="table-light">
+        <tr>
+          <th style="width:4rem;">#</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if datasets %}
+          {% for ds in datasets %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ ds.created_at|date:"Y-m-d" }}</td>
+              <td>
+                {% if ds.status == "ready" %}
+                  <span class="badge" style="background:#6c6;">Ready</span>
+                {% elif ds.status == "processing" %}
+                  <span class="badge" style="background:#aaa;">Processing</span>
+                {% else %}
+                  <span class="badge bg-danger">Error</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if ds.file %}
+                  <a href="{{ ds.file.url }}" class="link-primary">Download</a>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="4" class="text-center text-muted">
+              No datasets yet. Use the form above to generate your first file.
+            </td>
+          </tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 {% endblock %}

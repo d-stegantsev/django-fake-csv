@@ -33,3 +33,12 @@ SchemaColumnFormSet = inlineformset_factory(
     extra=1,
     can_delete=True,
 )
+
+
+class GenerateDatasetForm(forms.Form):
+    row_count = forms.IntegerField(
+        min_value=1,
+        max_value=1000000,
+        label="Number of rows",
+        widget=forms.NumberInput(attrs={"class": "form-control", "placeholder": "Rows to generate"})
+    )
