@@ -5,6 +5,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView
 
 from schemas.forms import SchemaForm, SchemaColumnFormSet, GenerateDatasetForm
 from schemas.models import Schema, Dataset
+from schemas.tasks import generate_csv_file
 
 
 class SchemaListView(LoginRequiredMixin, ListView):
@@ -64,8 +65,8 @@ class SchemaDetailView(LoginRequiredMixin, DetailView):
                 row_count=form.cleaned_data["row_count"],
                 status=Dataset.Status.PROCESSING,
             )
-            # TODO: Start celery task
-            # generate_csv_file.delay(dataset.id)
+
+            generate_csv_file.delay(dataset.id)
 
             return redirect(self.request.path_info)
 
