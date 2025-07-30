@@ -3,6 +3,11 @@ from django.core.files.base import ContentFile
 from schemas.models import Dataset
 import csv
 import io
+from faker import Faker
+from random import randint
+
+
+faker = Faker()
 
 
 @shared_task
@@ -38,16 +43,46 @@ def generate_csv_file(dataset_id):
         dataset.error_message = str(e)
         dataset.save()
 
+
 def fake_value_for_column(col):
-    # TODO: Implement data generation for all types
+
     if col.type == "full_name":
-        from faker import Faker
-        return Faker().name()
+        return faker.name()
+
+    if col.type == "job":
+        return faker.job()
+
     if col.type == "email":
-        from faker import Faker
-        return Faker().email()
+        return faker.email()
+
+    if col.type == "domain_name":
+        return faker.domain_name()
+
+    if col.type == "phone_number":
+        return faker.phone_number()
+
+    if col.type == "company_name":
+        return faker.company()
+
     if col.type == "text":
-        from faker import Faker
-        return Faker().text(max_nb_chars=col.params.get("max_length", 20))
-    # ... інші типи ...
+        min_length = col.params.get("min_length", 10)
+        max_length = col.params.get("max_length", 50)
+        txt = faker.text(max_nb_chars=max_length)
+        if len(txt) < min_length:
+            txt += " " + faker.text(max_nb_chars=(min_length - len(txt)))
+        return txt[:max_length]
+
+    if col.type == "integer":
+        min_val = col.params.get("min", 0)
+        max_val = col.params.get("max", 100)
+        return randint(min_val, max_val)
+
+    if col.type == "address":
+        return faker.address().replace("\n", ", ")
+
+    if col.type == "date":
+        start_date = col.params.get("start_date", "-30y")
+        end_date = col.params.get("end_date", "today")
+        return faker.date_between(start_date=start_date, end_date=end_date)
+
     return ""
