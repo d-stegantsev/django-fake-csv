@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="mb-4">
+        {% if form.instance.pk %}
+          Edit Schema
+        {% else %}
+          New Schema
+        {% endif %}
+      </h2>
+      {% include "schemas/schema_form_inner.html" %}
+    </div>
+  </div>
+{% endblock %}

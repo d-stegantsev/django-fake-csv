@@ -64,3 +64,16 @@ legend {
   margin-bottom: 1.5rem !important;
   font-size: 1.4rem;
 }
+
+.card, .card.shadow, .card.shadow-sm {
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(30,32,37,0.06) !important;
+    border: none !important;
+}
+
+.card-header {
+    border-bottom: 1px solid #ececec !important;
+    font-size: 1.2rem;
+    font-weight: 600;
+    background: #f8f9fa !important;
+}

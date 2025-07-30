@@ -20,7 +20,7 @@ class SchemaListView(LoginRequiredMixin, ListView):
 class SchemaCreateView(LoginRequiredMixin, CreateView):
     model = Schema
     form_class = SchemaForm
-    template_name = "schemas/schema_create.html"
+    template_name = "schemas/schema_edit.html"
     success_url = reverse_lazy("schemas:schema_list")
 
     def get(self, request, *args, **kwargs):
@@ -77,7 +77,7 @@ class SchemaDetailView(LoginRequiredMixin, DetailView):
 class SchemaUpdateView(LoginRequiredMixin, UpdateView):
     model = Schema
     form_class = SchemaForm
-    template_name = "schemas/schema_update.html"
+    template_name = "schemas/schema_edit.html"
     context_object_name = "schema"
     success_url = reverse_lazy("schemas:schema_list")
 
