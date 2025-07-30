@@ -1,0 +1,66 @@
+<div class="row g-2 align-items-center mb-2 column-form">
+  <div class="col-md-4">
+    {{ form.name.label_tag }}
+    {{ form.name }}
+  </div>
+  <div class="col-md-3">
+    {{ form.type.label_tag }}
+    {{ form.type }}
+  </div>
+
+  <div class="col-md-3 param-fields param-integer" style="display:none;">
+    <div class="row g-1">
+      <div class="col">
+        <label class="form-label small">From</label>
+        <input type="number" class="form-control param-input" data-key="min">
+      </div>
+      <div class="col">
+        <label class="form-label small">To</label>
+        <input type="number" class="form-control param-input" data-key="max">
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 param-fields param-text" style="display:none;">
+    <div class="row g-1">
+      <div class="col">
+        <label class="form-label small">Min length</label>
+        <input type="number" class="form-control param-input" data-key="min_length">
+      </div>
+      <div class="col">
+        <label class="form-label small">Max length</label>
+        <input type="number" class="form-control param-input" data-key="max_length">
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 param-fields param-date" style="display:none;">
+    <div class="row g-1">
+      <div class="col">
+        <label class="form-label small">Start date</label>
+        <input type="date" class="form-control param-input" data-key="start_date">
+      </div>
+      <div class="col">
+        <label class="form-label small">End date</label>
+        <input type="date" class="form-control param-input" data-key="end_date">
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2 d-flex align-items-end gap-2">
+    <div class="flex-grow-1" style="min-width:70px;max-width:90px;">
+      {{ form.order.label_tag }}
+      {{ form.order }}
+    </div>
+    <div>
+      {% if form.DELETE %}
+        {{ form.DELETE }}
+        <button type="button" class="btn btn-link text-danger delete-btn">Delete</button>
+      {% endif %}
+    </div>
+  </div>
+
+  {{ form.params }}
+  {{ form.id }}
+  {{ form.schema }}
+</div>

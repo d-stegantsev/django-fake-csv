@@ -23,15 +23,25 @@ class SchemaCreateView(LoginRequiredMixin, CreateView):
     template_name = "schemas/schema_edit.html"
     success_url = reverse_lazy("schemas:schema_list")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        formset = SchemaColumnFormSet(prefix="form")
+        context["formset"] = formset
+        context["empty_form"] = formset.empty_form
+        return context
+
     def get(self, request, *args, **kwargs):
         form = self.form_class()
         formset = SchemaColumnFormSet(prefix="form")
-        return render(request, self.template_name, {"form": form, "formset": formset})
+        return render(request, self.template_name, {
+            "form": form,
+            "formset": formset,
+            "empty_form": formset.empty_form,
+        })
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         formset = SchemaColumnFormSet(request.POST, prefix="form")
-
         if form.is_valid() and formset.is_valid():
             schema = form.save(commit=False)
             schema.user = request.user
@@ -39,8 +49,11 @@ class SchemaCreateView(LoginRequiredMixin, CreateView):
             formset.instance = schema
             formset.save()
             return redirect(self.success_url)
-
-        return render(request, self.template_name, {"form": form, "formset": formset})
+        return render(request, self.template_name, {
+            "form": form,
+            "formset": formset,
+            "empty_form": formset.empty_form,
+        })
 
 
 class SchemaDetailView(LoginRequiredMixin, DetailView):
@@ -84,9 +97,11 @@ class SchemaUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context["formset"] = SchemaColumnFormSet(self.request.POST, instance=self.object, prefix="form")
+            formset = SchemaColumnFormSet(self.request.POST, instance=self.object, prefix="form")
         else:
-            context["formset"] = SchemaColumnFormSet(instance=self.object, prefix="form")
+            formset = SchemaColumnFormSet(instance=self.object, prefix="form")
+        context["formset"] = formset
+        context["empty_form"] = formset.empty_form
         return context
 
     def form_valid(self, form):

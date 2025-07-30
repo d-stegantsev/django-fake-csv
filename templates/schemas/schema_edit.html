@@ -49,204 +49,89 @@
 
           <div id="columns">
             {% for form in formset %}
-              <div class="row g-2 align-items-center mb-2 column-form">
-                <div class="col-md-4">
-                  {{ form.name.label_tag }}
-                  {{ form.name }}
-                </div>
-                <div class="col-md-3">
-                  {{ form.type.label_tag }}
-                  {{ form.type }}
-                </div>
-
-                <div class="col-md-3 param-fields param-integer" style="display:none;">
-                  <div class="row g-1">
-                    <div class="col">
-                      <label class="form-label small">From</label>
-                      <input type="number" class="form-control param-input" data-key="min">
-                    </div>
-                    <div class="col">
-                      <label class="form-label small">To</label>
-                      <input type="number" class="form-control param-input" data-key="max">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-3 param-fields param-text" style="display:none;">
-                  <div class="row g-1">
-                    <div class="col">
-                      <label class="form-label small">Min length</label>
-                      <input type="number" class="form-control param-input" data-key="min_length">
-                    </div>
-                    <div class="col">
-                      <label class="form-label small">Max length</label>
-                      <input type="number" class="form-control param-input" data-key="max_length">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-3 param-fields param-date" style="display:none;">
-                  <div class="row g-1">
-                    <div class="col">
-                      <label class="form-label small">Start date</label>
-                      <input type="date" class="form-control param-input" data-key="start_date">
-                    </div>
-                    <div class="col">
-                      <label class="form-label small">End date</label>
-                      <input type="date" class="form-control param-input" data-key="end_date">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                  <div class="me-2 w-50">
-                    <label class="form-label">{{ form.order.label }}</label>
-                    {{ form.order }}
-                  </div>
-                  {{ form.DELETE }}
-                  <button type="button" class="btn btn-link text-danger delete-btn align-self-end">Delete</button>
-                </div>
-
-                {{ form.params }}
-                {{ form.id }}
-                {{ form.schema }}
-              </div>
+              {% include "schemas/column_form_row.html" %}
             {% endfor %}
           </div>
-
           <button type="button" id="add-column" class="btn btn-outline-secondary">Add column</button>
-        </fieldset>
 
+        </fieldset>
       </form>
 
+      <div id="empty-form" style="display: none;">
+        {% include "schemas/column_form_row.html" with form=empty_form %}
+      </div>
+
       <script>
-          document.querySelectorAll('.column-form').forEach(initColumnForm);
+          (function () {
+              const addBtn = document.getElementById('add-column');
+              const totalInput = document.getElementById('id_form-TOTAL_FORMS');
+              const columnsBlock = document.getElementById('columns');
+              const emptyTpl = document.getElementById('empty-form').innerHTML;
 
-          document.getElementById('add-column').addEventListener('click', () => {
-              const total = document.getElementById('id_form-TOTAL_FORMS');
-              const idx = parseInt(total.value);
-              const tpl = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, idx);
-              document.getElementById('columns').insertAdjacentHTML('beforeend', tpl);
-              total.value = idx + 1;
-              initColumnForm(document.querySelector('#columns .column-form:last-child'));
-          });
-
-          function initColumnForm(block) {
-              const select = block.querySelector('select');
-              const paramsInput = block.querySelector('input[name$="-params"]');
-              const intBlock = block.querySelector('.param-integer');
-              const txtBlock = block.querySelector('.param-text');
-              const dtBlock = block.querySelector('.param-date');
-              const delBtn = block.querySelector('.delete-btn');
-              const delChk = block.querySelector('input[type="checkbox"][name$="-DELETE"]');
-
-              function toggle() {
-                  intBlock.style.display = select.value === 'integer' ? 'flex' : 'none';
-                  txtBlock.style.display = select.value === 'text' ? 'flex' : 'none';
-                  dtBlock.style.display = select.value === 'date' ? 'flex' : 'none';
-              }
-
-              select.addEventListener('change', toggle);
-              toggle();
-
-              block.closest('form').addEventListener('submit', () => {
-                  const data = {};
-                  block.querySelectorAll('.param-input').forEach(i => {
-                      if (i.value) data[i.dataset.key] = isNaN(i.value) ? i.value : +i.value;
-                  });
-                  paramsInput.value = JSON.stringify(data);
+              addBtn.addEventListener('click', function () {
+                  const idx = +totalInput.value;
+                  const newRow = emptyTpl.replace(/__prefix__/g, idx);
+                  columnsBlock.insertAdjacentHTML('beforeend', newRow);
+                  totalInput.value = idx + 1;
+                  const newForm = columnsBlock.querySelectorAll('.column-form')[columnsBlock.querySelectorAll('.column-form').length - 1];
+                  initColumnForm(newForm);
               });
 
-              delBtn.addEventListener('click', () => {
-                  if (delChk) {
-                      delChk.checked = true;
-                      block.remove();
-                  } else {
-                      block.remove();
+              document.querySelectorAll('.column-form').forEach(initColumnForm);
+
+              function initColumnForm(row) {
+                  if (!row) return;
+
+                  const typeSelect = row.querySelector('select[name$="-type"]');
+                  if (typeSelect) {
+                      const paramBlocks = {
+                          integer: row.querySelector('.param-integer'),
+                          text: row.querySelector('.param-text'),
+                          date: row.querySelector('.param-date'),
+                      };
+                      const toggleParams = function () {
+                          Object.entries(paramBlocks).forEach(([key, el]) => {
+                              if (el) el.style.display = typeSelect.value === key ? 'flex' : 'none';
+                          });
+                      };
+                      typeSelect.addEventListener('change', toggleParams);
+                      toggleParams();
                   }
-                  document.getElementById('id_form-TOTAL_FORMS').value =
-                      document.querySelectorAll('.column-form').length;
-              });
-          }
+
+                  const delBtn = row.querySelector('.delete-btn');
+                  const delCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                  if (delBtn) {
+                      delBtn.addEventListener('click', function () {
+                          if (delCheckbox) {
+                              delCheckbox.checked = true;
+                              row.style.display = 'none';
+                          } else {
+                              row.remove();
+                              totalInput.value = document.querySelectorAll('.column-form').length;
+                          }
+                      });
+                  }
+
+                  const formEl = row.closest('form');
+                  if (formEl && !formEl.__bindParams) {
+                      formEl.__bindParams = true;
+                      formEl.addEventListener('submit', function () {
+                          columnsBlock.querySelectorAll('.column-form').forEach(block => {
+                              const paramsInput = block.querySelector('input[name$="-params"]');
+                              if (paramsInput) {
+                                  const data = {};
+                                  block.querySelectorAll('.param-input').forEach(i => {
+                                      if (i.value) data[i.dataset.key] = isNaN(i.value) ? i.value : +i.value;
+                                  });
+                                  paramsInput.value = JSON.stringify(data);
+                              }
+                          });
+                      });
+                  }
+              }
+          })();
       </script>
 
-      <div id="empty-form" style="display:none;">
-        <div class="row g-2 align-items-center mb-2 column-form">
-
-          <div class="col-md-4">
-            <label for="id_form-__prefix__-name" class="form-label">Name</label>
-            <input type="text" name="form-__prefix__-name"
-                   id="id_form-__prefix__-name" class="form-control">
-          </div>
-
-          <div class="col-md-3">
-            <label for="id_form-__prefix__-type" class="form-label">Type</label>
-            <select name="form-__prefix__-type" id="id_form-__prefix__-type"
-                    class="form-select">
-              {% for key,val in formset.empty_form.fields.type.choices %}
-                <option value="{{ key }}">{{ val }}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="col-md-3 param-fields param-integer" style="display:none;">
-            <div class="row g-1">
-              <div class="col">
-                <label class="form-label small">From</label>
-                <input type="number" class="form-control param-input" data-key="min">
-              </div>
-              <div class="col">
-                <label class="form-label small">To</label>
-                <input type="number" class="form-control param-input" data-key="max">
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-3 param-fields param-text" style="display:none;">
-            <div class="row g-1">
-              <div class="col">
-                <label class="form-label small">Min length</label>
-                <input type="number" class="form-control param-input" data-key="min_length">
-              </div>
-              <div class="col">
-                <label class="form-label small">Max length</label>
-                <input type="number" class="form-control param-input" data-key="max_length">
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-3 param-fields param-date" style="display:none;">
-            <div class="row g-1">
-              <div class="col">
-                <label class="form-label small">Start date</label>
-                <input type="date" class="form-control param-input" data-key="start_date">
-              </div>
-              <div class="col">
-                <label class="form-label small">End date</label>
-                <input type="date" class="form-control param-input" data-key="end_date">
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-2">
-            <label for="id_form-__prefix__-order" class="form-label">Order</label>
-            <input type="number" name="form-__prefix__-order"
-                   id="id_form-__prefix__-order" class="form-control">
-          </div>
-
-          <div class="col-auto">
-            <input type="checkbox" name="form-__prefix__-DELETE" style="display:none;">
-            <button type="button" class="btn btn-link text-danger delete-btn">
-              Delete
-            </button>
-          </div>
-
-          <input type="hidden" name="form-__prefix__-params" id="id_form-__prefix__-params">
-          <input type="hidden" name="form-__prefix__-id" id="id_form-__prefix__-id">
-          <input type="hidden" name="form-__prefix__-schema" id="id_form-__prefix__-schema">
-
-        </div>
-      </div>
     </div>
   </div>
 {% endblock %}
