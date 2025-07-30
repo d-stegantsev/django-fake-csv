@@ -4,7 +4,7 @@
   <a href="{% url 'schemas:schema_create' %}" class="btn btn-primary">New Schema</a>
 <ul>
     {% for schema in schemas %}
-        <li>{{ schema.name }} (Updated: {{ schema.updated_at }})</li>
+        <li><a href="{% url 'schemas:schema_detail' schema.pk %}">{{ schema.name }}</a> (Updated: {{ schema.updated_at }})</li>
     {% empty %}
         <li>No schemas found.</li>
     {% endfor %}
