@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+  {# Header: Displays schema name and edit button #}
   <h2 class="mb-4 d-flex align-items-center">
     {{ schema.name }}
     <a href="{% url 'schemas:schema_update' schema.pk %}" class="btn btn-outline-secondary ms-3 btn-sm">Edit schema</a>
   </h2>
 
+  {# Card: Schema columns overview #}
   <div class="card mb-4">
     <div class="card-header fw-bold">Schema columns</div>
     <div class="card-body p-0">
@@ -18,6 +20,7 @@
         </tr>
         </thead>
         <tbody>
+        {# Loop through each column in the schema and display its info #}
         {% for col in columns %}
           <tr>
             <td>{{ forloop.counter }}</td>
@@ -25,6 +28,7 @@
             <td>{{ col.get_type_display }}</td>
           </tr>
         {% empty %}
+          {# If there are no columns, show a placeholder row #}
           <tr>
             <td colspan="3" class="text-center text-muted">No columns added yet.</td>
           </tr>
@@ -34,11 +38,13 @@
     </div>
   </div>
 
+  {# Card: Form for generating fake data #}
   <div class="card mb-4">
     <div class="card-header fw-bold">Generate data</div>
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
+        {# Row count field for number of fake rows to generate #}
         {{ generate_form.row_count.label_tag }}
         <div class="row g-2 mb-2">
           <div class="col-auto">
@@ -48,6 +54,7 @@
             <button type="submit" class="btn btn-success">Generate data</button>
           </div>
         </div>
+        {# Show validation errors for the row count input #}
         {% if generate_form.errors %}
           <div class="text-danger small">{{ generate_form.errors.row_count }}</div>
         {% endif %}
@@ -55,6 +62,7 @@
     </div>
   </div>
 
+  {# Card: Table of generated data sets (CSV files) #}
   <div class="card mb-4">
     <div class="card-header fw-bold">Data sets</div>
     <div class="card-body p-0">
@@ -68,12 +76,14 @@
         </tr>
         </thead>
         <tbody>
+        {# If there are any data sets, list them #}
         {% if datasets %}
           {% for ds in datasets %}
             <tr>
               <td>{{ forloop.counter }}</td>
               <td>{{ ds.created_at|date:"Y-m-d" }}</td>
               <td>
+                {# Show status with colored badge: ready/processing/error #}
                 {% if ds.status == "ready" %}
                   <span class="badge" style="background:#6c6;">Ready</span>
                 {% elif ds.status == "processing" %}
@@ -83,6 +93,7 @@
                 {% endif %}
               </td>
               <td>
+                {# Show download link if the file is available #}
                 {% if ds.file %}
                   <a href="{{ ds.file.url }}" class="link-primary">Download</a>
                 {% else %}
@@ -92,6 +103,7 @@
             </tr>
           {% endfor %}
         {% else %}
+          {# Show placeholder row if there are no data sets yet #}
           <tr>
             <td colspan="4" class="text-center text-muted">
               No datasets yet. Use the form above to generate your first file.

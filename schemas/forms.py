@@ -26,6 +26,7 @@ class SchemaColumnForm(forms.ModelForm):
         }
 
 
+# Inline formset to manage SchemaColumn objects within a Schema form
 SchemaColumnFormSet = inlineformset_factory(
     Schema,
     SchemaColumn,

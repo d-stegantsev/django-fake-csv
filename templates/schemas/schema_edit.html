@@ -2,6 +2,7 @@
 {% block content %}
   <div class="card shadow-sm">
     <div class="card-body">
+      {# Heading: Shows "Edit Schema" or "New Schema" depending on context #}
       <h2 class="mb-4">
         {% if form.instance.pk %}
           Edit Schema
@@ -14,7 +15,7 @@
         <div class="row mb-3 align-items-start">
           <div class="col-lg-8">
             <fieldset class="border p-3">
-
+              {# Main schema fields: name, column separator, string character #}
               <div class="mb-3">
                 {{ form.name.label_tag }}
                 {{ form.name }}
@@ -27,18 +28,19 @@
                 {{ form.string_character.label_tag }}
                 {{ form.string_character }}
               </div>
-
             </fieldset>
           </div>
-
           <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            {# Submit button for the schema form #}
             <button type="submit" class="btn btn-primary btn-lg">Submit</button>
           </div>
         </div>
 
+        {# Section for managing schema columns (formset) #}
         <fieldset class="border p-3 mb-4">
           {{ formset.management_form }}
 
+          {# Header row for columns #}
           <div class="row g-2 align-items-end mb-2 fw-bold">
             <div class="col-md-4" style="font-size:1.6rem;">Schema columns</div>
             <div class="col-md-3"></div>
@@ -47,32 +49,38 @@
             <div class="col-auto"></div>
           </div>
 
+          {# Render each column form row #}
           <div id="columns">
             {% for form in formset %}
               {% include "schemas/column_form_row.html" %}
             {% endfor %}
           </div>
+          {# Button to add new column forms dynamically #}
           <button type="button" id="add-column" class="btn btn-outline-secondary">Add column</button>
-
         </fieldset>
       </form>
 
+      {# Hidden empty form template for adding new columns (used by JS) #}
       <div id="empty-form" style="display: none;">
         {% include "schemas/column_form_row.html" with form=empty_form %}
       </div>
 
       <script>
           (function () {
+              // Get references to main controls
               const addBtn = document.getElementById('add-column');
               const totalInput = document.getElementById('id_form-TOTAL_FORMS');
               const columnsBlock = document.getElementById('columns');
               const emptyTpl = document.getElementById('empty-form').innerHTML;
 
+              // Add new column form when "Add column" button is clicked
               addBtn.addEventListener('click', function () {
                   const idx = +totalInput.value;
+                  // Clone the empty form and replace prefix with correct index
                   const newRow = emptyTpl.replace(/__prefix__/g, idx);
                   columnsBlock.insertAdjacentHTML('beforeend', newRow);
                   totalInput.value = idx + 1;
+                  // Auto-set order for the new column
                   const newForm = columnsBlock.querySelectorAll('.column-form')[columnsBlock.querySelectorAll('.column-form').length - 1];
                   const orderInput = newForm.querySelector('input[name$="-order"]');
                   if (orderInput) {
@@ -83,14 +91,18 @@
                       });
                       orderInput.value = maxOrder + 1;
                   }
+                  // Initialize JS for the new form row (events, etc.)
                   initColumnForm(newForm);
               });
 
+              // Initialize all column form rows on page load
               document.querySelectorAll('.column-form').forEach(initColumnForm);
 
+              // Function to set up logic for a single column form row
               function initColumnForm(row) {
                   if (!row) return;
 
+                  // Show/hide parameter blocks depending on column type
                   const typeSelect = row.querySelector('select[name$="-type"]');
                   if (typeSelect) {
                       const paramBlocks = {
@@ -107,6 +119,7 @@
                       toggleParams();
                   }
 
+                  // Handle column deletion (soft delete if using management form)
                   const delBtn = row.querySelector('.delete-btn');
                   const delCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
                   if (delBtn) {
@@ -121,6 +134,7 @@
                       });
                   }
 
+                  // On form submit: collect parameter inputs into JSON for backend
                   const formEl = row.closest('form');
                   if (formEl && !formEl.__bindParams) {
                       formEl.__bindParams = true;
