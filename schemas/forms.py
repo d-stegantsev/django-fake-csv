@@ -35,6 +35,15 @@ class SchemaColumnForm(forms.ModelForm):
 # Unique Order number validation
 class BaseSchemaColumnFormSet(BaseInlineFormSet):
     def clean(self):
+        # All empty forms DELETE = True
+        for form in self.forms:
+            if (
+                    not form.cleaned_data.get("name") and
+                    not form.cleaned_data.get("type") and
+                    not form.cleaned_data.get("order")
+            ):
+                form.cleaned_data["DELETE"] = True
+
         super().clean()
         orders = []
         for form in self.forms:

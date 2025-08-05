@@ -60,7 +60,9 @@
             {% if formset.forms and formset.forms.0.cleaned_data is not None %}
               {% for form in formset %}
                 {% if not form.cleaned_data.DELETE %}
-                  {% include "schemas/column_form_row.html" %}
+                  {% if form.cleaned_data.name or form.cleaned_data.type or form.cleaned_data.order %}
+                    {% include "schemas/column_form_row.html" %}
+                  {% endif %}
                 {% endif %}
               {% endfor %}
             {% else %}
