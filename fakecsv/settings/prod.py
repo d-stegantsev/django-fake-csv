@@ -3,7 +3,7 @@ import dj_database_url
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["fakecsv.herokuapp.com"]
+ALLOWED_HOSTS = ["fakecsv-64edd7b944b1.herokuapp.com"]
 
 DATABASES = {
     "default": dj_database_url.config(conn_max_age=600, ssl_require=True)
