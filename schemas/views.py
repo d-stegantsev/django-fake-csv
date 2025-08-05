@@ -2,6 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.views.generic import View
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 from schemas.forms import SchemaForm, SchemaColumnFormSet, GenerateDatasetForm
 from schemas.models import Schema, Dataset
@@ -134,3 +137,15 @@ class SchemaDeleteView(DeleteView):
     model = Schema
     template_name = "schemas/schema_confirm_delete.html"
     success_url = reverse_lazy("schemas:schema_list")
+
+
+
+class SchemaStatusPartialView(LoginRequiredMixin, View):
+    """
+    Returns a HTML fragment (<tbody> with all datasets rows) for htmx polling.
+    """
+    def get(self, request, pk):
+        schema = Schema.objects.get(pk=pk, user=request.user)
+        datasets = schema.datasets.order_by("-created_at")
+        html = render_to_string("schemas/dataset_table_body.html", {"datasets": datasets})
+        return HttpResponse(html)

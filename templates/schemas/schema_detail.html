@@ -75,41 +75,13 @@
           <th>Actions</th>
         </tr>
         </thead>
-        <tbody>
-        {# If there are any data sets, list them #}
-        {% if datasets %}
-          {% for ds in datasets %}
-            <tr>
-              <td>{{ forloop.counter }}</td>
-              <td>{{ ds.created_at|date:"Y-m-d" }}</td>
-              <td>
-                {# Show status with colored badge: ready/processing/error #}
-                {% if ds.status == "ready" %}
-                  <span class="badge" style="background:#6c6;">Ready</span>
-                {% elif ds.status == "processing" %}
-                  <span class="badge" style="background:#aaa;">Processing</span>
-                {% else %}
-                  <span class="badge bg-danger">Error</span>
-                {% endif %}
-              </td>
-              <td>
-                {# Show download link if the file is available #}
-                {% if ds.file %}
-                  <a href="{{ ds.file.url }}" class="link-primary">Download</a>
-                {% else %}
-                  <span class="text-muted">—</span>
-                {% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-        {% else %}
-          {# Show placeholder row if there are no data sets yet #}
-          <tr>
-            <td colspan="4" class="text-center text-muted">
-              No datasets yet. Use the form above to generate your first file.
-            </td>
-          </tr>
-        {% endif %}
+        <tbody
+            id="dataset-table-body"
+            hx-get="{% url 'schemas:schema_table_statuses' schema.id %}"
+            hx-trigger="every 3s"
+            hx-swap="outerHTML"
+        >
+        {% include "schemas/dataset_table_body.html" with datasets=datasets %}
         </tbody>
       </table>
     </div>

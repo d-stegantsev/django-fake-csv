@@ -1,0 +1,30 @@
+{% if datasets %}
+  {% for ds in datasets %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ ds.created_at|date:"Y-m-d" }}</td>
+      <td>
+        {% if ds.status == "ready" %}
+          <span class="badge" style="background:#6c6;">Ready</span>
+        {% elif ds.status == "processing" %}
+          <span class="badge" style="background:#aaa;">Processing</span>
+        {% else %}
+          <span class="badge bg-danger">Error</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if ds.file %}
+          <a href="{{ ds.file.url }}" class="link-primary">Download</a>
+        {% else %}
+          <span class="text-muted">—</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="4" class="text-center text-muted">
+      No datasets yet. Use the form above to generate your first file.
+    </td>
+  </tr>
+{% endif %}
