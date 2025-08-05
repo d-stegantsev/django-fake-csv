@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from schemas.models import Schema, SchemaColumn
 
 
@@ -25,12 +25,35 @@ class SchemaColumnForm(forms.ModelForm):
             "params": forms.HiddenInput(),
         }
 
+    # Order = 0 for first column form
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk and not self.initial.get("order"):
+            self.fields["order"].initial = 0
+
+
+# Unique Order number validation
+class BaseSchemaColumnFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        orders = []
+        for form in self.forms:
+            if hasattr(form, "cleaned_data") and form.cleaned_data.get("DELETE"):
+                continue
+            order = form.cleaned_data.get("order")
+            if order in orders:
+                raise forms.ValidationError(
+                    "Each column must have a unique order number."
+                )
+            orders.append(order)
+
 
 # Inline formset to manage SchemaColumn objects within a Schema form
 SchemaColumnFormSet = inlineformset_factory(
     Schema,
     SchemaColumn,
     form=SchemaColumnForm,
+    formset=BaseSchemaColumnFormSet,
     extra=1,
     can_delete=True,
 )

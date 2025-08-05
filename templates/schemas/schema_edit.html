@@ -40,6 +40,12 @@
         <fieldset class="border p-3 mb-4">
           {{ formset.management_form }}
 
+          {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+              {{ formset.non_form_errors }}
+            </div>
+          {% endif %}
+
           {# Header row for columns #}
           <div class="row g-2 align-items-end mb-2 fw-bold">
             <div class="col-md-4" style="font-size:1.6rem;">Schema columns</div>
@@ -51,10 +57,19 @@
 
           {# Render each column form row #}
           <div id="columns">
-            {% for form in formset %}
-              {% include "schemas/column_form_row.html" %}
-            {% endfor %}
+            {% if formset.forms and formset.forms.0.cleaned_data is not None %}
+              {% for form in formset %}
+                {% if not form.cleaned_data.DELETE %}
+                  {% include "schemas/column_form_row.html" %}
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              {% for form in formset %}
+                {% include "schemas/column_form_row.html" %}
+              {% endfor %}
+            {% endif %}
           </div>
+
           {# Button to add new column forms dynamically #}
           <button type="button" id="add-column" class="btn btn-outline-secondary">Add column</button>
         </fieldset>
