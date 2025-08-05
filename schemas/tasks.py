@@ -5,6 +5,7 @@ import csv
 import io
 from faker import Faker
 from random import randint
+from datetime import datetime, date
 
 # Faker instance for generating fake data
 faker = Faker()
@@ -46,6 +47,33 @@ def generate_csv_file(dataset_id):
         dataset.status = Dataset.Status.ERROR
         dataset.error_message = str(e)
         dataset.save()
+
+
+def parse_date(date_str):
+    """
+        Convert a string or date object to a Python date object.
+
+        Accepts either a string in the format 'DD.MM.YYYY' or 'YYYY-MM-DD',
+        or an already existing datetime.date object. Returns a datetime.date object
+        suitable for use in faker date functions.
+
+        Args:
+            date_str (str or date): The input date as a string or date object.
+
+        Returns:
+            date: The parsed date as a datetime.date object.
+
+        Raises:
+            ValueError: If the input cannot be parsed as a date.
+        """
+    if isinstance(date_str, date):
+        return date_str
+    for fmt in ("%d.%m.%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(date_str, fmt).date()
+        except (ValueError, TypeError):
+            continue
+    raise ValueError(f"Can't parse date string `{date_str}`")
 
 
 def fake_value_for_column(col):
@@ -99,8 +127,16 @@ def fake_value_for_column(col):
 
     # Fake date within a specified range
     if col.type == "date":
-        start_date = col.params.get("start_date", "-30y")
-        end_date = col.params.get("end_date", "today")
+        start_date_raw = col.params.get("start_date", "-30y")
+        end_date_raw = col.params.get("end_date", "today")
+        if isinstance(start_date_raw, str) and (start_date_raw.startswith("-") or start_date_raw == "today"):
+            start_date = start_date_raw
+        else:
+            start_date = parse_date(start_date_raw)
+        if isinstance(end_date_raw, str) and (end_date_raw.startswith("-") or end_date_raw == "today"):
+            end_date = end_date_raw
+        else:
+            end_date = parse_date(end_date_raw)
         return faker.date_between(start_date=start_date, end_date=end_date)
 
     # Default: return empty string for unknown type
