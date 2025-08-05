@@ -1,7 +1,8 @@
+import os
 from fakecsv.settings.base import *
 import dj_database_url
 
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ["fakecsv-64edd7b944b1.herokuapp.com"]
 
