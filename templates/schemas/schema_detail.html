@@ -75,14 +75,7 @@
           <th>Actions</th>
         </tr>
         </thead>
-        <tbody
-            id="dataset-table-body"
-            hx-get="{% url 'schemas:schema_table_statuses' schema.id %}"
-            hx-trigger="every 3s"
-            hx-swap="outerHTML"
-        >
-        {% include "schemas/dataset_table_body.html" with datasets=datasets %}
-        </tbody>
+        {% include "schemas/dataset_table_body.html" with datasets=datasets schema=schema %}
       </table>
     </div>
   </div>

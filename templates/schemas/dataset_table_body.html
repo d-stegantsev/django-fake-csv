@@ -1,3 +1,9 @@
+<tbody
+    id="dataset-table-body"
+    hx-get="{% url 'schemas:schema_table_statuses' schema.id %}"
+    hx-trigger="every 3s"
+    hx-swap="outerHTML"
+>
 {% if datasets %}
   {% for ds in datasets %}
     <tr>
@@ -5,9 +11,9 @@
       <td>{{ ds.created_at|date:"Y-m-d" }}</td>
       <td>
         {% if ds.status == "ready" %}
-          <span class="badge" style="background:#6c6;">Ready</span>
+          <span class="badge bg-success">Ready</span>
         {% elif ds.status == "processing" %}
-          <span class="badge" style="background:#aaa;">Processing</span>
+          <span class="badge bg-secondary">Processing</span>
         {% else %}
           <span class="badge bg-danger">Error</span>
         {% endif %}
@@ -28,3 +34,4 @@
     </td>
   </tr>
 {% endif %}
+</tbody>

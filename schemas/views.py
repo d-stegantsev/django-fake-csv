@@ -147,5 +147,5 @@ class SchemaStatusPartialView(LoginRequiredMixin, View):
     def get(self, request, pk):
         schema = Schema.objects.get(pk=pk, user=request.user)
         datasets = schema.datasets.order_by("-created_at")
-        html = render_to_string("schemas/dataset_table_body.html", {"datasets": datasets})
+        html = render_to_string("schemas/dataset_table_body.html", {"datasets": datasets, "schema": schema})
         return HttpResponse(html)
