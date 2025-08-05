@@ -8,13 +8,16 @@ click-plugins==1.1.1.2
 click-repl==0.3.0
 colorama==0.4.6
 crispy-bootstrap5==2025.6
+dj-database-url==3.0.1
 Django==5.2.4
 django-crispy-forms==2.4
 django_celery_results==2.6.0
 Faker==37.4.0
+gunicorn==23.0.0
 kombu==5.5.4
 packaging==25.0
 prompt_toolkit==3.0.51
+psycopg2==2.9.10
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 redis==6.2.0
@@ -23,3 +26,4 @@ sqlparse==0.5.3
 tzdata==2025.2
 vine==5.1.0
 wcwidth==0.2.13
+whitenoise==6.9.0
