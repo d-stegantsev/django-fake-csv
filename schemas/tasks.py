@@ -1,5 +1,4 @@
 from celery import shared_task
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from django.core.files.base import ContentFile
 
 from schemas.models import Dataset
@@ -12,7 +11,6 @@ import logging
 
 # Faker instance for generating fake data
 faker = Faker()
-logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -27,7 +25,12 @@ def generate_csv_file(dataset_id):
 
         # Create an in-memory string buffer for the CSV data
         csv_buffer = io.StringIO()
-        writer = csv.writer(csv_buffer, delimiter=schema.column_separator)
+        writer = csv.writer(
+            csv_buffer,
+            delimiter=schema.column_separator,
+            quotechar=schema.string_character,
+            quoting=csv.QUOTE_MINIMAL,
+        )
 
         # Write the header row (column names)
         writer.writerow([col.name for col in columns])
@@ -46,9 +49,6 @@ def generate_csv_file(dataset_id):
 
         dataset.status = Dataset.Status.READY
         dataset.save()
-
-        logger.info("Dataset.file.name: %s", dataset.file.name)
-        logger.info("Dataset.file.url: %s", dataset.file.url)
 
     except Exception as e:
         # If an error occurs, mark dataset as error and store the error message
