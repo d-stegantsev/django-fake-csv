@@ -1,10 +1,6 @@
-import os
-
 from celery import shared_task
-from cloudinary_storage.storage import MediaCloudinaryStorage
-from django.conf import settings
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 
 from schemas.models import Dataset
 import csv
@@ -48,7 +44,7 @@ def generate_csv_file(dataset_id):
         file_name = f"dataset_{dataset.pk}.csv"
         content = ContentFile(csv_buffer.getvalue().encode("utf-8"))
 
-        storage = MediaCloudinaryStorage()
+        storage = RawMediaCloudinaryStorage()
         cloud_name = storage.save(f"csv/{file_name}", content)
 
         dataset.file.name = cloud_name
