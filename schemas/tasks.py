@@ -1,5 +1,10 @@
+import os
+
 from celery import shared_task
+from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+
 from schemas.models import Dataset
 import csv
 import io
@@ -11,6 +16,9 @@ import logging
 # Faker instance for generating fake data
 faker = Faker()
 logger = logging.getLogger(__name__)
+logger.info("DEFAULT_FILE_STORAGE = %s", getattr(settings, "DEFAULT_FILE_STORAGE", "<missing>"))
+logger.info("Storage class = %s", default_storage.__class__.__name__)
+logger.info("DJANGO_SETTINGS_MODULE = %s", os.environ.get("DJANGO_SETTINGS_MODULE"))
 
 
 @shared_task
