@@ -4,7 +4,8 @@ import dj_database_url
 
 DEBUG = os.environ.get("DEBUG", "0") == "1"
 
-ALLOWED_HOSTS = ["fakecsv-64edd7b944b1.herokuapp.com"]
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else []
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if os.environ.get("CSRF_TRUSTED_ORIGINS") else []
 
 DATABASES = {
     "default": dj_database_url.config(conn_max_age=600, ssl_require=True)
