@@ -16,9 +16,6 @@ import logging
 # Faker instance for generating fake data
 faker = Faker()
 logger = logging.getLogger(__name__)
-logger.info("DEFAULT_FILE_STORAGE = %s", getattr(settings, "DEFAULT_FILE_STORAGE", "<missing>"))
-logger.info("Storage class = %s", default_storage.__class__.__name__)
-logger.info("DJANGO_SETTINGS_MODULE = %s", os.environ.get("DJANGO_SETTINGS_MODULE"))
 
 
 @shared_task
@@ -26,6 +23,9 @@ def generate_csv_file(dataset_id):
     """
     Celery task to generate a CSV file with fake data for a given dataset.
     """
+    print(">>> DEBUG: DJANGO_SETTINGS_MODULE =", os.environ.get("DJANGO_SETTINGS_MODULE"))
+    print(">>> DEBUG: DEFAULT_FILE_STORAGE =", getattr(settings, "DEFAULT_FILE_STORAGE", "<missing>"))
+    print(">>> DEBUG: Storage class =", default_storage.__class__.__name__)
     try:
         dataset = Dataset.objects.get(pk=dataset_id)
         schema = dataset.schema
