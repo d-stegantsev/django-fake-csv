@@ -42,18 +42,12 @@ def generate_csv_file(dataset_id):
 
         # Save the generated CSV as a file on the dataset
         file_name = f"dataset_{dataset.pk}.csv"
-        content = ContentFile(csv_buffer.getvalue().encode("utf-8"))
+        dataset.file.save(file_name, ContentFile(csv_buffer.getvalue().encode("utf-8")))
 
-        storage = RawMediaCloudinaryStorage()
-        cloud_name = storage.save(f"csv/{file_name}", content)
-
-        dataset.file.name = cloud_name
         dataset.status = Dataset.Status.READY
         dataset.save()
 
-        logger.info("Storage used: %s", storage.__class__.__name__)
-        logger.info("Saved name: %s", dataset.file.name)
-        logger.info("Public URL: %s", storage.url(dataset.file.name))
+        logger.info("Dataset.file.name: %s", dataset.file.name)
         logger.info("Dataset.file.url: %s", dataset.file.url)
 
     except Exception as e:

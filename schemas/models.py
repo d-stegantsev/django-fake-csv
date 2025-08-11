@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 
 class Schema(models.Model):
@@ -117,5 +118,10 @@ class Dataset(models.Model):
         default=Status.PROCESSING,
     )  # Generation status (processing/ready/error)
 
-    file = models.FileField(upload_to='csv/', null=True)  # Generated CSV file
+    file = models.FileField(
+        upload_to="csv/",
+        storage=RawMediaCloudinaryStorage(),
+        null=True,
+        blank=True,
+    )  # Generated CSV file
     error_message = models.TextField(blank=True, null=True)  # Error message if generation failed
