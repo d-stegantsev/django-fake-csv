@@ -9,20 +9,23 @@
     <tr>
       <td>{{ forloop.counter }}</td>
       <td>{{ ds.created_at|date:"Y-m-d" }}</td>
-      <td>
+
+      <td class="status-col">
         {% if ds.status == "ready" %}
-          <span class="badge bg-success">Ready</span>
+          <span class="badge bg-success badge-status">Ready</span>
         {% elif ds.status == "processing" %}
-          <span class="badge bg-secondary">Processing</span>
+          <span class="badge bg-secondary badge-status">Processing</span>
         {% else %}
-          <span class="badge bg-danger">Error</span>
+          <span class="badge bg-danger badge-status">Error</span>
         {% endif %}
       </td>
-      <td>
-        {% if ds.file %}
-          <a href="{{ ds.file.url }}" class="link-primary">Download</a>
+
+      <td class="actions-col">
+        {% if ds.status == "ready" and ds.file %}
+          <a href="{{ ds.file.url }}" class="btn btn-outline-primary btn-sm">Download</a>
         {% else %}
-          <span class="text-muted">—</span>
+          {# резервуємо місце під кнопку, щоб не було зсуву #}
+          <span class="btn btn-outline-secondary btn-sm invisible">Download</span>
         {% endif %}
       </td>
     </tr>

@@ -77,3 +77,16 @@ legend {
     font-weight: 600;
     background: #f8f9fa !important;
 }
+
+.table.table-bordered { table-layout: fixed; }
+
+th.status-col, td.status-col { width: 9rem; }
+th.actions-col, td.actions-col { width: 12rem; }
+
+.badge-status {
+  display: inline-block;
+  min-width: 7rem;
+  text-align: center;
+}
+
+tr.dataset-row td { vertical-align: middle; }
