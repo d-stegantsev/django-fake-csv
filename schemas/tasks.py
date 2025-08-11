@@ -29,7 +29,7 @@ def generate_csv_file(dataset_id):
             csv_buffer,
             delimiter=schema.column_separator,
             quotechar=schema.string_character,
-            quoting=csv.QUOTE_MINIMAL,
+            quoting=csv.QUOTE_ALL,
         )
 
         # Write the header row (column names)
