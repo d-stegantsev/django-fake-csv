@@ -31,4 +31,3 @@ CLOUDINARY_STORAGE = {
     "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
     "RESOURCE_TYPE": "raw",
 }
-MEDIA_URL = "https://res.cloudinary.com/%s/" % os.environ.get("CLOUDINARY_CLOUD_NAME")

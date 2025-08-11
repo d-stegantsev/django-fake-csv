@@ -6,9 +6,11 @@ import io
 from faker import Faker
 from random import randint
 from datetime import datetime, date
+import logging
 
 # Faker instance for generating fake data
 faker = Faker()
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -39,6 +41,7 @@ def generate_csv_file(dataset_id):
         # Save the generated CSV as a file on the dataset
         file_name = f"dataset_{dataset.pk}.csv"
         dataset.file.save(file_name, ContentFile(csv_buffer.getvalue().encode("utf-8")))
+        logger.info("Uploaded dataset URL: %s", dataset.file.url)
         dataset.status = Dataset.Status.READY
         dataset.save()
     except Exception as e:
