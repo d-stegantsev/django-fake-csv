@@ -1,6 +1,7 @@
 import os
 
 from celery import shared_task
+from cloudinary_storage.storage import MediaCloudinaryStorage
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -23,9 +24,6 @@ def generate_csv_file(dataset_id):
     """
     Celery task to generate a CSV file with fake data for a given dataset.
     """
-    print(">>> DEBUG: DJANGO_SETTINGS_MODULE =", os.environ.get("DJANGO_SETTINGS_MODULE"))
-    print(">>> DEBUG: DEFAULT_FILE_STORAGE =", getattr(settings, "DEFAULT_FILE_STORAGE", "<missing>"))
-    print(">>> DEBUG: Storage class =", default_storage.__class__.__name__)
     try:
         dataset = Dataset.objects.get(pk=dataset_id)
         schema = dataset.schema
@@ -48,10 +46,20 @@ def generate_csv_file(dataset_id):
 
         # Save the generated CSV as a file on the dataset
         file_name = f"dataset_{dataset.pk}.csv"
-        dataset.file.save(file_name, ContentFile(csv_buffer.getvalue().encode("utf-8")))
-        logger.info("Uploaded dataset URL: %s", dataset.file.url)
+        content = ContentFile(csv_buffer.getvalue().encode("utf-8"))
+
+        storage = MediaCloudinaryStorage()
+        cloud_name = storage.save(f"csv/{file_name}", content)
+
+        dataset.file.name = cloud_name
         dataset.status = Dataset.Status.READY
         dataset.save()
+
+        logger.info("Storage used: %s", storage.__class__.__name__)
+        logger.info("Saved name: %s", dataset.file.name)
+        logger.info("Public URL: %s", storage.url(dataset.file.name))
+        logger.info("Dataset.file.url: %s", dataset.file.url)
+
     except Exception as e:
         # If an error occurs, mark dataset as error and store the error message
         dataset = Dataset.objects.get(pk=dataset_id)
