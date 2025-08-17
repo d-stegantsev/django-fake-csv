@@ -1,20 +1,21 @@
 from celery import shared_task
 from django.core.files.base import ContentFile
+from typing import Union, Any, Optional, Dict
 
-from schemas.models import Dataset
+from schemas.models import Dataset, SchemaColumn
 import csv
 import io
 from faker import Faker
 from random import randint
 from datetime import datetime, date
-import logging
+import dateparser
 
 # Faker instance for generating fake data
 faker = Faker()
 
 
 @shared_task
-def generate_csv_file(dataset_id):
+def generate_csv_file(dataset_id: int) -> None:
     """
     Celery task to generate a CSV file with fake data for a given dataset.
     """
@@ -58,34 +59,28 @@ def generate_csv_file(dataset_id):
         dataset.save()
 
 
-def parse_date(date_str):
+def parse_date(date_str: Union[str, date]) -> Union[date, str]:
     """
-        Convert a string or date object to a Python date object.
-
-        Accepts either a string in the format 'DD.MM.YYYY' or 'YYYY-MM-DD',
-        or an already existing datetime.date object. Returns a datetime.date object
-        suitable for use in faker date functions.
-
-        Args:
-            date_str (str or date): The input date as a string or date object.
-
-        Returns:
-            date: The parsed date as a datetime.date object.
-
-        Raises:
-            ValueError: If the input cannot be parsed as a date.
-        """
+    Convert a string or date object to a Python date object.
+    If parsing fails, return an empty string.
+    """
     if isinstance(date_str, date):
         return date_str
+
+    if not isinstance(date_str, str):
+        return ""
+
     for fmt in ("%d.%m.%Y", "%Y-%m-%d"):
         try:
             return datetime.strptime(date_str, fmt).date()
-        except (ValueError, TypeError):
+        except ValueError:
             continue
-    raise ValueError(f"Can't parse date string `{date_str}`")
+
+    # Default: return empty string for unknown type
+    return ""
 
 
-def fake_value_for_column(col):
+def fake_value_for_column(col: SchemaColumn) -> Any:
     """
     Generate a fake value for a schema column based on its type and parameters.
     """
@@ -135,17 +130,19 @@ def fake_value_for_column(col):
         return faker.address().replace("\n", ", ")
 
     # Fake date within a specified range
+    params: Optional[Dict[str, Any]] = col.params
+
     if col.type == "date":
-        start_date_raw = col.params.get("start_date", "-30y")
-        end_date_raw = col.params.get("end_date", "today")
-        if isinstance(start_date_raw, str) and (start_date_raw.startswith("-") or start_date_raw == "today"):
-            start_date = start_date_raw
-        else:
-            start_date = parse_date(start_date_raw)
-        if isinstance(end_date_raw, str) and (end_date_raw.startswith("-") or end_date_raw == "today"):
-            end_date = end_date_raw
-        else:
-            end_date = parse_date(end_date_raw)
+        start_date_raw = params.get("start_date") if params else None
+        end_date_raw = params.get("end_date") if params else None
+
+        # Parse safely
+        start_parsed = dateparser.parse(start_date_raw) if start_date_raw else None
+        end_parsed = dateparser.parse(end_date_raw) if end_date_raw else None
+
+        start_date = start_parsed.date() if start_parsed else None
+        end_date = end_parsed.date() if end_parsed else None
+
         return faker.date_between(start_date=start_date, end_date=end_date)
 
     # Default: return empty string for unknown type
