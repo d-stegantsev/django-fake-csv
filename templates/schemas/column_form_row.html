@@ -1,0 +1,76 @@
+{# One column row in schema formset. Renders the fields for a single column and its parameters. #}
+<div class="row g-2 align-items-center mb-2 column-form">
+  {# Column name field #}
+  <div class="col-md-4">
+    {{ form.name.label_tag }}
+    {{ form.name }}
+  </div>
+
+  {# Column type dropdown #}
+  <div class="col-md-3">
+    {{ form.type.label_tag }}
+    {{ form.type }}
+  </div>
+
+  {# Integer parameter fields: shown only when type=integer #}
+  <div class="col-md-3 param-fields param-integer" style="display:none;">
+    <div class="row g-1">
+      <div class="col">
+        <label class="form-label small">From</label>
+        <input type="number" class="form-control param-input" data-key="min">
+      </div>
+      <div class="col">
+        <label class="form-label small">To</label>
+        <input type="number" class="form-control param-input" data-key="max">
+      </div>
+    </div>
+  </div>
+
+  {# Text parameter fields: shown only when type=text #}
+  <div class="col-md-3 param-fields param-text" style="display:none;">
+    <div class="row g-1">
+      <div class="col">
+        <label class="form-label small">Min length</label>
+        <input type="number" class="form-control param-input" data-key="min_length">
+      </div>
+      <div class="col">
+        <label class="form-label small">Max length</label>
+        <input type="number" class="form-control param-input" data-key="max_length">
+      </div>
+    </div>
+  </div>
+
+  {# Date parameter fields: shown only when type=date #}
+  <div class="col-md-3 param-fields param-date" style="display:none;">
+    <div class="row g-1">
+      <div class="col">
+        <label class="form-label small">Start date</label>
+        <input type="date" class="form-control param-input" data-key="start_date">
+      </div>
+      <div class="col">
+        <label class="form-label small">End date</label>
+        <input type="date" class="form-control param-input" data-key="end_date">
+      </div>
+    </div>
+  </div>
+
+  {# Order field and delete button (if present) #}
+  <div class="col-md-2 d-flex align-items-end gap-2">
+    <div class="flex-grow-1" style="min-width:70px;max-width:90px;">
+      {{ form.order.label_tag }}
+      {{ form.order }}
+    </div>
+    <div>
+      {# Show delete checkbox and button if this is not an empty form #}
+      {% if form.DELETE %}
+        {{ form.DELETE }}
+        <button type="button" class="btn btn-link text-danger delete-btn">Delete</button>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Hidden fields: params (for parameter JSON), id, schema #}
+  {{ form.params }}
+  {{ form.id }}
+  {{ form.schema }}
+</div>

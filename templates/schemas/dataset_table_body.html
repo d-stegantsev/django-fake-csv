@@ -1,0 +1,40 @@
+<tbody
+    id="dataset-table-body"
+    hx-get="{% url 'schemas:schema_table_statuses' schema.id %}"
+    hx-trigger="every 3s"
+    hx-swap="outerHTML"
+>
+{% if datasets %}
+  {% for ds in datasets %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ ds.created_at|date:"Y-m-d" }}</td>
+
+      <td class="status-col">
+        {% if ds.status == "ready" %}
+          <span class="badge bg-success badge-status">Ready</span>
+        {% elif ds.status == "processing" %}
+          <span class="badge bg-secondary badge-status">Processing</span>
+        {% else %}
+          <span class="badge bg-danger badge-status">Error</span>
+        {% endif %}
+      </td>
+
+      <td class="actions-col">
+        {% if ds.status == "ready" and ds.file %}
+          <a href="{{ ds.file.url }}" class="btn btn-outline-primary btn-sm">Download</a>
+        {% else %}
+          {# резервуємо місце під кнопку, щоб не було зсуву #}
+          <span class="btn btn-outline-secondary btn-sm invisible">Download</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="4" class="text-center text-muted">
+      No datasets yet. Use the form above to generate your first file.
+    </td>
+  </tr>
+{% endif %}
+</tbody>

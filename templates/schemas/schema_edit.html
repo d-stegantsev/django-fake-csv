@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {# Heading: Shows "Edit Schema" or "New Schema" depending on context #}
+      <h2 class="mb-4">
+        {% if form.instance.pk %}
+          Edit Schema
+        {% else %}
+          New Schema
+        {% endif %}
+      </h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row mb-3 align-items-start">
+          <div class="col-lg-8">
+            <fieldset class="border p-3">
+              {# Main schema fields: name, column separator, string character #}
+              <div class="mb-3">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+              </div>
+              <div class="mb-3">
+                {{ form.column_separator.label_tag }}
+                {{ form.column_separator }}
+              </div>
+              <div class="mb-3">
+                {{ form.string_character.label_tag }}
+                {{ form.string_character }}
+              </div>
+            </fieldset>
+          </div>
+          <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            {# Submit button for the schema form #}
+            <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+          </div>
+        </div>
+
+        {# Section for managing schema columns (formset) #}
+        <fieldset class="border p-3 mb-4">
+          {{ formset.management_form }}
+
+          {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+              {{ formset.non_form_errors }}
+            </div>
+          {% endif %}
+
+          {# Header row for columns #}
+          <div class="row g-2 align-items-end mb-2 fw-bold">
+            <div class="col-md-4" style="font-size:1.6rem;">Schema columns</div>
+            <div class="col-md-3"></div>
+            <div class="col-md-3"></div>
+            <div class="col-md-2"></div>
+            <div class="col-auto"></div>
+          </div>
+
+          {# Render each column form row #}
+          <div id="columns">
+            {% if formset.forms and formset.forms.0.cleaned_data is not None %}
+              {% for form in formset %}
+                {% if not form.cleaned_data.DELETE %}
+                  {% if form.cleaned_data.name or form.cleaned_data.type or form.cleaned_data.order %}
+                    {% include "schemas/column_form_row.html" %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              {% for form in formset %}
+                {% include "schemas/column_form_row.html" %}
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          {# Button to add new column forms dynamically #}
+          <button type="button" id="add-column" class="btn btn-outline-secondary">Add column</button>
+        </fieldset>
+      </form>
+
+      {# Hidden empty form template for adding new columns (used by JS) #}
+      <div id="empty-form" style="display: none;">
+        {% include "schemas/column_form_row.html" with form=empty_form %}
+      </div>
+
+      <script src="{% static 'js/schema_form.js' %}"></script>
+
+    </div>
+  </div>
+{% endblock %}

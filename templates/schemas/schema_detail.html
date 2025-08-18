@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {# Header: Displays schema name and edit button #}
+  <h2 class="mb-4 d-flex align-items-center">
+    {{ schema.name }}
+    <a href="{% url 'schemas:schema_update' schema.pk %}" class="btn btn-outline-secondary ms-3 btn-sm">Edit schema</a>
+  </h2>
+
+  {# Card: Schema columns overview #}
+  <div class="card mb-4">
+    <div class="card-header fw-bold">Schema columns</div>
+    <div class="card-body p-0">
+      <table class="table table-bordered mb-0 align-middle">
+        <thead class="table-light">
+        <tr>
+          <th style="width:4rem;">#</th>
+          <th>Column name</th>
+          <th>Column type</th>
+        </tr>
+        </thead>
+        <tbody>
+        {# Loop through each column in the schema and display its info #}
+        {% for col in columns %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ col.name }}</td>
+            <td>{{ col.get_type_display }}</td>
+          </tr>
+        {% empty %}
+          {# If there are no columns, show a placeholder row #}
+          <tr>
+            <td colspan="3" class="text-center text-muted">No columns added yet.</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# Card: Form for generating fake data #}
+  <div class="card mb-4">
+    <div class="card-header fw-bold">Generate data</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {# Row count field for number of fake rows to generate #}
+        {{ generate_form.row_count.label_tag }}
+        <div class="row g-2 mb-2">
+          <div class="col-auto">
+            {{ generate_form.row_count }}
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-success">Generate data</button>
+          </div>
+        </div>
+        {# Show validation errors for the row count input #}
+        {% if generate_form.errors %}
+          <div class="text-danger small">{{ generate_form.errors.row_count }}</div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  {# Card: Table of generated data sets (CSV files) #}
+  <div class="card mb-4">
+    <div class="card-header fw-bold">Data sets</div>
+    <div class="card-body p-0">
+      <table class="table table-bordered mb-0 align-middle">
+        <thead class="table-light">
+        <tr>
+          <th style="width:4rem;">#</th>
+          <th>Created</th>
+          <th class="status-col">Status</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+        </thead>
+        {% include "schemas/dataset_table_body.html" with datasets=datasets schema=schema %}
+      </table>
+    </div>
+  </div>
+
+{% endblock %}
