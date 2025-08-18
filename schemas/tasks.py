@@ -1,6 +1,6 @@
 from celery import shared_task
 from django.core.files.base import ContentFile
-from typing import Union, Any, Optional, Dict
+from typing import Union, Any, Optional, Dict, Callable
 
 from schemas.models import Dataset, SchemaColumn
 import csv
@@ -80,70 +80,56 @@ def parse_date(date_str: Union[str, date]) -> Union[date, str]:
     return ""
 
 
-def fake_value_for_column(col: SchemaColumn) -> Any:
-    """
-    Generate a fake value for a schema column based on its type and parameters.
-    """
+def fake_text(col: "SchemaColumn") -> str:
+    # Generate random text with configurable min/max length
+    min_length = col.params.get("min_length", 10)
+    max_length = col.params.get("max_length", 50)
+    txt = faker.text(max_nb_chars=max_length)
+    if len(txt) < min_length:
+        # Ensure at least 5 characters for Faker and non-negative
+        remaining = max(min_length - len(txt), 5)
+        txt += " " + faker.text(max_nb_chars=remaining)
+    return txt[:max_length]
 
-    # Fake full name
-    if col.type == "full_name":
-        return faker.name()
 
-    # Fake job title
-    if col.type == "job":
-        return faker.job()
+def fake_integer(col: "SchemaColumn") -> int:
+    # Generate random integer within min/max range from params
+    min_val = col.params.get("min", 0)
+    max_val = col.params.get("max", 100)
+    return randint(min_val, max_val)
 
-    # Fake email address
-    if col.type == "email":
-        return faker.email()
 
-    # Fake domain name
-    if col.type == "domain_name":
-        return faker.domain_name()
-
-    # Fake phone number
-    if col.type == "phone_number":
-        return faker.phone_number()
-
-    # Fake company name
-    if col.type == "company_name":
-        return faker.company()
-
-    # Fake random text with configurable length
-    if col.type == "text":
-        min_length = col.params.get("min_length", 10)
-        max_length = col.params.get("max_length", 50)
-        txt = faker.text(max_nb_chars=max_length)
-        # If too short, append more text
-        if len(txt) < min_length:
-            txt += " " + faker.text(max_nb_chars=(min_length - len(txt)))
-        return txt[:max_length]
-
-    # Fake random integer within a range
-    if col.type == "integer":
-        min_val = col.params.get("min", 0)
-        max_val = col.params.get("max", 100)
-        return randint(min_val, max_val)
-
-    # Fake address (single line)
-    if col.type == "address":
-        return faker.address().replace("\n", ", ")
-
-    # Fake date within a specified range
+def fake_date(col: "SchemaColumn") -> str:
+    # Generate a date between start_date and end_date from params
     params: Optional[Dict[str, Any]] = col.params
+    start_date_raw = params.get("start_date") if params else None
+    end_date_raw = params.get("end_date") if params else None
 
-    if col.type == "date":
-        start_date_raw = params.get("start_date") if params else None
-        end_date_raw = params.get("end_date") if params else None
+    # Safely parse strings to date objects
+    start_parsed = dateparser.parse(start_date_raw) if start_date_raw else None
+    end_parsed = dateparser.parse(end_date_raw) if end_date_raw else None
+    start_date = start_parsed.date() if start_parsed else None
+    end_date = end_parsed.date() if end_parsed else None
 
-        # Parse safely
-        start_parsed = dateparser.parse(start_date_raw) if start_date_raw else None
-        end_parsed = dateparser.parse(end_date_raw) if end_date_raw else None
+    # Return as string for CSV compatibility
+    return faker.date_between(start_date=start_date, end_date=end_date).isoformat()
 
-        start_date = start_parsed.date() if start_parsed else None
-        end_date = end_parsed.date() if end_parsed else None
 
-        return faker.date_between(start_date=start_date, end_date=end_date)
+# Mapper: type -> generator function
+FAKE_GENERATORS: Dict[str, Callable[["SchemaColumn"], Any]] = {
+    "full_name": lambda col: faker.name(),
+    "job": lambda col: faker.job(),
+    "email": lambda col: faker.email(),
+    "domain_name": lambda col: faker.domain_name(),
+    "phone_number": lambda col: faker.phone_number(),
+    "company_name": lambda col: faker.company(),
+    "address": lambda col: faker.address().replace("\n", ", "),
+    "text": fake_text,
+    "integer": fake_integer,
+    "date": fake_date,
+}
 
-    # Default: return empty string for unknown type
-    return ""
+
+def fake_value_for_column(col: "SchemaColumn") -> Any:
+    generator = FAKE_GENERATORS.get(col.type)
+    return generator(col) if generator else ""
